@@ -5,11 +5,11 @@ from functions import *
 def add_noiz(array,order):
     ff=np.array(array)
     noize = np.power(10,order)*np.random.rand(*ff.shape)
-    noized = ff+0.05*noize
+    noized = ff+noize
     return noized
 
 def out_ydata(phi_y,weight,xdata):
-    ydata = [np.dot(weight, phi_y(xdata[:,i])) for i in range(xdata.shape[1])]
+    ydata = [np.dot(weight, phi_y(xdata[i,:])) for i in range(xdata.shape[0])]
     return ydata
 
 def out_virtual_data(phi_y,weight,factor):
