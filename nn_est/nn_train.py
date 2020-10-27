@@ -1,7 +1,7 @@
 import optuna
 
 import keras.backend as K
-from keras.models import Sequential, Model
+from keras.models import Sequential, Model, load_model
 from keras.layers import Input, Dense, Activation
 from keras.layers.advanced_activations import LeakyReLU
 import numpy as np
@@ -13,12 +13,15 @@ MID_UNIT = 15
 OUTPUT_DIM = 4
 EPOCH = 50000
 
-def nn_train(x_filename,y_filename):
+def nn_predict(x_filename,model_filename):
+  x_test = np.loadtxt(x_filename,delimiter=',')
+  model = load_model(model_filename)
+  y_pred = model.predict(x_test)
+  return y_pred
+
+def nn_train(x_filename,y_filename,model_filename):
   x_train = np.loadtxt(x_filename,delimiter=',')
   y_train = np.loadtxt(y_filename,delimiter=',')
-
-  #r = np.zeros(29)
-  #p = np.zeros(29)
 
   def objective(trial):
     #セッションのクリア
@@ -68,14 +71,16 @@ def nn_train(x_filename,y_filename):
         metrics=["accuracy"])
 
   train=model.fit(x=x_train, y=y_train, nb_epoch=EPOCH)
-  model.save("model.h5")
+  model.save(model_filename)
 
-  lossname = "loss_log.csv"
+  lossname = "./data/loss_log.csv"
   np.savetxt(lossname,train.history['loss'])
 
 if __name__ == '__main__':
-  #set input, output data to train
-  factor_train = "test_input.csv"
-  face_train = "test_output.csv"
+  factor_train = "./data/test_input.csv"
+  face_train = "./data/test_output.csv"
+  model_filename = "./data/model_test.h5"
 
-  nn_train(factor_train,face_train)
+  nn_train(factor_train,face_train,model_filename)
+  print('predict',nn_predict(factor_train,model_filename))
+  print('ans',face_train)
