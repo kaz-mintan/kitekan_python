@@ -1,62 +1,74 @@
 import numpy as np
-import matplotlib.pyplot as plt
 
-#def gradient_descent(func, X, M,learning_rate, max_iter):
-from grad import gradient_descent
-from func_new import *
+#from nn_est import nn_train
+from weight_est import kitekan_est, functions, virtual_sub
 
-N = 10
-EMO_NUM = 1
-FACT_NUM = 10
+if __name__ == '__main__':
+  '''
+  factor_train = "./nn_est/data/test_input.csv"
+  face_train = "./nn_est/data/test_output.csv"
+  model_filename = "./nn_est/data/model_test.h5"
+  data_path = "./nn_est/data"
+  nn_train.nn_train(factor_train,face_train,model_filename,data_path)
+  print('predict',nn_train.nn_predict(factor_train,model_filename))
+  print('ans',face_train)
+  '''
 
-TOL = 1e-6
-L_RATE = 0.5
-MAX_ITER = 100
+  import matplotlib.pyplot as plt
+  for i in range(50):
+    dim = 10 
+    ans_length = 100
+    noiz_order = -5.0
+
+    ans_weight = np.random.randint(-10,10,(dim,))/10.0
+    ans_x = np.random.rand(ans_length,dim)
+
+    phi_t = functions.phi_quiz
+    phi_ans = functions.phi_quiz
+
+    train_time_length = 10
+    test_time_length = 10
+
+    train_id = np.sort(np.random.randint(0,ans_length,(train_time_length,)))
+
+    train_factor = ans_x[train_id,:]
+    train_face = virtual_sub.add_noiz(virtual_sub.out_virtual_data(phi_ans,ans_weight,train_factor),noiz_order)
+
+    trained_w = kitekan_est.fit(phi_t,train_factor,train_face)
+    print('train factor',train_factor[0,:])
+
+    test_id = np.sort(np.random.randint(0,49,(test_time_length,)))
+    test_factor = ans_x[test_id,:]
+
+    estimated_ylist = virtual_sub.out_ydata(phi_t,trained_w,test_factor)
+
+    plt.subplot(dim+1,1,1)
+    plt.scatter(test_id,estimated_ylist,label="estimated_y")
+    plt.scatter(train_id,train_face,label="trained_y")
+    plt.plot(range(ans_length),virtual_sub.out_ydata(phi_ans,ans_weight,ans_x),label="answer")
+    plt.legend(loc='center left', bbox_to_anchor=(1., .5))  
+
+    for d in range(dim):
+      plt.subplot(dim+1,1,d+2)
+      plt.scatter(test_factor[:,d],estimated_ylist,label="estimated_y")
+      plt.scatter(train_factor[:,d],train_face,label="trained_y")
+      plt.ylabel('y'+str(d+1))
+      plt.scatter(ans_x[:,d],virtual_sub.out_ydata(phi_ans,ans_weight,ans_x),label="answer",facecolors='none',edgecolors='gray')
+      plt.legend(loc='center left', bbox_to_anchor=(1., .5))  
 
 
-def f(w, factor):
-  ret =np.zeros(EMO_NUM)
-  for emo_num in range(EMO_NUM):
-    for fact_num in range(FACT_NUM):
-      ret[emo_num] += w[fact_num] * factor[t][fact_num]
-  return w[0] + w[1]
 
-def phi(x,m):
-  return [1, x, x**2, x**3]
+    print('tra x,tes x',train_factor,test_factor)
+    print('weight compare',ans_weight,trained_w)
+    tra=np.array([virtual_sub.out_ydata(phi_ans,trained_w,test_factor)])
+    ans=np.array([virtual_sub.out_ydata(phi_t,ans_weight,test_factor)])
+    print('diff sum',np.sum(ans-tra))
 
-def function(w,factor,mental):
-  ret = 0
-  for t in range(len(mental)):
-    for f_num in range(FACT_NUM):
-      i = f_num*4
-      ret += w[f_num]*func(inv_norm(i,factor[t][f_num]/100.0),mental[t],i)
+    plt.show()
 
-def get_PHI(X,M):
-  PHI = np.array([phi(x,m) for x,m in zip(X,M)])
-  return PHI
-
-def main(X,t,N):
-
-  err = 100
-  M = np.zeros(N)
-  while err>TOL:
-    PHI=get_PHI(X,M)
-
-    w = np.linalg.solve(np.dot(PHI.T, PHI), np.dot(PHI.T, t)) 
-    gradient_descent(function,w,X,M,L_RATE,MAX_ITER)
-
-  xlist = np.arange(0, 1, 0.01)
-  ylist = [f(w, x) for x in xlist]
-
-  plt.plot(xlist, ylist)
-  plt.plot(X, t, 'o')
-
-  plt.show()
-
-
-if __name__ == "__main__": 
-
-  X = np.array([0.02, 0.12, 0.19, 0.27, 0.42, 0.51, 0.64, 0.84, 0.88, 0.99])
-  t = np.array([0.05, 0.87, 0.94, 0.92, 0.54, -0.11, -0.78, -0.89, -0.79, -0.04])
-  N = len(X)
-  main(X,t,N)
+  '''
+  ff=train_factor
+  noize = np.random.rand(*ff.shape)
+  print(noize)
+  test_factor = ff#+0.05*noize
+  '''
