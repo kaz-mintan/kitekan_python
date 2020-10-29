@@ -1,6 +1,5 @@
 import numpy as np
 
-from functions import *
 
 def add_noiz(array,order):
     ff=np.array(array)
@@ -16,6 +15,9 @@ def out_virtual_data(phi_y,weight,factor):
     return out_ydata(phi_y,weight,factor)
 
 if __name__ == '__main__':
+    #from weight_est import functions
+    #from functions import *
+
     dim = 3
     weight = np.array([0.3,0.1,0.5])
     test_x = np.random.rand(dim,5)

@@ -1,5 +1,5 @@
 import numpy as np
-from kitekan import *
+from weight_est import kitekan
 
 def func_ex(x):
     return 1.0/(1.0+np.exp(x))
@@ -31,4 +31,4 @@ def phi_trial(x):
 
 def phi_quiz(x):
     m = 5.0
-    return [quiz_func(inv_norm(i*4,x[i]/100.0),m,i*4) for i in range(x.shape[0])]
+    return [kitekan.quiz_func(kitekan.inv_norm(i*4,x[i]/100.0),m,i*4) for i in range(x.shape[0])]
