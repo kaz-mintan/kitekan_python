@@ -19,7 +19,7 @@ def nn_predict(x_filename,model_filename):
   y_pred = model.predict(x_test)
   return y_pred
 
-def nn_train(x_filename,y_filename,model_filename):
+def nn_train(x_filename,y_filename,model_filename,data_path):
   x_train = np.loadtxt(x_filename,delimiter=',')
   y_train = np.loadtxt(y_filename,delimiter=',')
 
@@ -57,7 +57,7 @@ def nn_train(x_filename,y_filename,model_filename):
   optimizer=study.best_params["optimizer"]
 
   best_params = ["mid_units:",str(mid_units),",activation:" ,activation,",optimizer:",optimizer]
-  path_w  = "para_memo.txt"
+  path_w  = data_path+"/para_memo.txt"
   with open(path_w, mode='w') as f:
       f.writelines(best_params)
 
@@ -67,13 +67,13 @@ def nn_train(x_filename,y_filename,model_filename):
   model.add(Dense(OUTPUT_DIM, activation=activation))
 
   model.compile(optimizer=optimizer,
-        loss="mean_squared_error",
+        loss="/mean_squared_error",
         metrics=["accuracy"])
 
   train=model.fit(x=x_train, y=y_train, nb_epoch=EPOCH)
   model.save(model_filename)
 
-  lossname = "./data/loss_log.csv"
+  lossname = data_path+"loss_log.csv"
   np.savetxt(lossname,train.history['loss'])
 
 if __name__ == '__main__':
@@ -81,6 +81,6 @@ if __name__ == '__main__':
   face_train = "./data/test_output.csv"
   model_filename = "./data/model_test.h5"
 
-  nn_train(factor_train,face_train,model_filename)
+  nn_train(factor_train,face_train,model_filename,data_path)
   print('predict',nn_predict(factor_train,model_filename))
   print('ans',face_train)
